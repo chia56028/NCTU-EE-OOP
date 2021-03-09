@@ -15,6 +15,7 @@ public:
 	float Sub(float a, float b);
 	float Mul(float a, float b);
 	float Div(float a, float b);
+
 	void Op(char *In, char *Out);
 // Construction
 public:

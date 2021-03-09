@@ -8,6 +8,9 @@
 #include "calculatorDlg.h"
 #include "afxdialogex.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -249,8 +252,7 @@ void CcalculatorDlg::OnBnClickedButton13() // =
 	wchar_t B[100];
 	
 	// 1. Convert format of m_edit1 from w_char* to char*
-	int i, j;
-	i = m_edit1.GetLength();
+	int i = m_edit1.GetLength();
 	for (int j = 0; j <= i; j++) {
 		In[j] = (char)m_edit1.GetAt(j);
 	}
@@ -290,8 +292,34 @@ float CcalculatorDlg::Div(float a, float b) {
 	return (a / b);
 }
 
+double Eval2(char *expr, char **end) {
+	double Eval0(char*, char**);
+	double res = 0;
+	if (*(*end = expr) == '(') {
+		res = Eval0(*end + 1, end);
+		if (**end == ')')++*end;
+	}
+	else { res = strtod(*end, end); }
+	return res;
+}
+
+double Eval1(char* expr, char** end) {
+	double res = Eval2(expr, end);
+	while (**end == '*' || **end == '/')
+		(**end == '*') ? (res *= Eval2(*end + 1, end)) : (res /= Eval2(*end + 1, end));
+	return res;
+}
+
+double Eval0(char* expr, char** end) {
+	double res = Eval1(expr, end);
+	while (**end == '+' || **end == '-')
+		res += (**end == '+') ? Eval1(*end + 1, end) : -Eval1(*end + 1, end);
+	return res;
+}
+
 // aritmetic
 void CcalculatorDlg::Op(char *In, char *Out) {
+	/*
 	// 1. Easy vision: four arithmetic of single digits 
 	float a = (float)(In[0] - 0x30);
 	float b = (float)(In[2] - 0x30);
@@ -305,4 +333,9 @@ void CcalculatorDlg::Op(char *In, char *Out) {
 	// fprintf: print to file
 	// sprintf: print to string array
 	sprintf_s(Out, 99, "%f", c);
+	*/
+
+	char *pos = 0;
+	sprintf_s(Out, 99, "%f", Eval0(In, &pos));
+
 }
