@@ -52,6 +52,7 @@ END_MESSAGE_MAP()
 
 CcalculatorDlg::CcalculatorDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
+	, m_edit1(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +60,34 @@ CcalculatorDlg::CcalculatorDlg(CWnd* pParent /*=nullptr*/)
 void CcalculatorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT2, m_edit1);
 }
 
 BEGIN_MESSAGE_MAP(CcalculatorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CcalculatorDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CcalculatorDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CcalculatorDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CcalculatorDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CcalculatorDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON6, &CcalculatorDlg::OnBnClickedButton6)
+	ON_EN_CHANGE(IDC_EDIT2, &CcalculatorDlg::OnEnChangeEdit2)
+	ON_BN_CLICKED(IDC_BUTTON7, &CcalculatorDlg::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON8, &CcalculatorDlg::OnBnClickedButton8)
+	ON_BN_CLICKED(IDC_BUTTON9, &CcalculatorDlg::OnBnClickedButton9)
+	ON_BN_CLICKED(IDC_BUTTON10, &CcalculatorDlg::OnBnClickedButton10)
+	ON_BN_CLICKED(IDC_BUTTON11, &CcalculatorDlg::OnBnClickedButton11)
+	ON_BN_CLICKED(IDC_BUTTON12, &CcalculatorDlg::OnBnClickedButton12)
+	ON_BN_CLICKED(IDC_BUTTON14, &CcalculatorDlg::OnBnClickedButton14)
+	ON_BN_CLICKED(IDC_BUTTON13, &CcalculatorDlg::OnBnClickedButton13)
+	ON_BN_CLICKED(IDC_BUTTON15, &CcalculatorDlg::OnBnClickedButton15)
+	ON_BN_CLICKED(IDC_BUTTON16, &CcalculatorDlg::OnBnClickedButton16)
+	ON_BN_CLICKED(IDC_BUTTON18, &CcalculatorDlg::OnBnClickedButton18)
+	ON_BN_CLICKED(IDC_BUTTON17, &CcalculatorDlg::OnBnClickedButton17)
+	ON_BN_CLICKED(IDC_BUTTON19, &CcalculatorDlg::OnBnClickedButton19)
+	ON_BN_CLICKED(IDC_BUTTON20, &CcalculatorDlg::OnBnClickedButton20)
 END_MESSAGE_MAP()
 
 
@@ -100,6 +123,7 @@ BOOL CcalculatorDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	SetWindowText(L"Calculator, designer: ching-yu");
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -153,3 +177,74 @@ HCURSOR CcalculatorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+int CcalculatorDlg::Add(int a, int b) {
+	return (a + b);
+}
+
+int CcalculatorDlg::Sub(int a, int b) {
+	return (a - b);
+}
+
+void CcalculatorDlg::OnEnChangeEdit2()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+}
+void CcalculatorDlg::OnBnClickedButton14() // 0
+{
+	// varible/windows data exchange
+	UpdateData(1);
+	m_edit1 += "0";
+	UpdateData(0);
+}
+void CcalculatorDlg::OnBnClickedButton1()
+{	UpdateData(1); m_edit1 += "1"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton2()
+{ 	UpdateData(1); m_edit1 += "2"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton3()
+{	UpdateData(1); m_edit1 += "3"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton4()
+{	UpdateData(1); m_edit1 += "4"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton5()
+{	UpdateData(1); m_edit1 += "5"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton6()
+{	UpdateData(1); m_edit1 += "6"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton7()
+{	UpdateData(1); m_edit1 += "7"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton8()
+{	UpdateData(1); m_edit1 += "8"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton9() // +
+{	UpdateData(1); m_edit1 += "+"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton10() // -
+{	UpdateData(1); m_edit1 += "-"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton11() // *
+{	UpdateData(1); m_edit1 += "*"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton12() // /
+{	UpdateData(1); m_edit1 += "/"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton15() // C
+{	UpdateData(1); m_edit1 = ""; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton16() // %
+{	UpdateData(1); m_edit1 += "%"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton17() // (
+{	UpdateData(1); m_edit1 += "("; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton18() // )
+{	UpdateData(1); m_edit1 += ")"; UpdateData(0);	}
+void CcalculatorDlg::OnBnClickedButton19() // .
+{	UpdateData(1); m_edit1 += "."; UpdateData(0);	}
+
+void CcalculatorDlg::OnBnClickedButton20() // backspace
+{
+	UpdateData(1);
+	int i = m_edit1.GetLength();
+	m_edit1.SetAt(i - 1, 0x0000);
+	UpdateData(0);
+}
+
+void CcalculatorDlg::OnBnClickedButton13() // =
+{
+	// TODO: Add your control notification handler code here
+}
