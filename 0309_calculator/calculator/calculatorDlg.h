@@ -11,8 +11,11 @@ class CcalculatorDlg : public CDialogEx
 // designed by ourself
 public:
 	// declare member function
-	int Add(int a, int b);
-	int Sub(int a, int b);
+	float Add(float a, float b);
+	float Sub(float a, float b);
+	float Mul(float a, float b);
+	float Div(float a, float b);
+	void Op(char *In, char *Out);
 // Construction
 public:
 	CcalculatorDlg(CWnd* pParent = nullptr);	// standard constructor

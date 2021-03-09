@@ -177,13 +177,6 @@ HCURSOR CcalculatorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-int CcalculatorDlg::Add(int a, int b) {
-	return (a + b);
-}
-
-int CcalculatorDlg::Sub(int a, int b) {
-	return (a - b);
-}
 
 void CcalculatorDlg::OnEnChangeEdit2()
 {
@@ -240,11 +233,76 @@ void CcalculatorDlg::OnBnClickedButton20() // backspace
 {
 	UpdateData(1);
 	int i = m_edit1.GetLength();
-	m_edit1.SetAt(i - 1, 0x0000);
+	if (i > 0)
+	{
+		// sets a character at a specified position
+		m_edit1.SetAt(i - 1, 0x0000);
+	}
 	UpdateData(0);
 }
 
 void CcalculatorDlg::OnBnClickedButton13() // =
 {
-	// TODO: Add your control notification handler code here
+	// 0. Declare variables
+	char In[100];
+	char Out[100];
+	wchar_t B[100];
+	
+	// 1. Convert format of m_edit1 from w_char* to char*
+	int i, j;
+	i = m_edit1.GetLength();
+	for (int j = 0; j <= i; j++) {
+		In[j] = (char)m_edit1.GetAt(j);
+	}
+
+	// 2. Do aritmetic
+	Op(In, Out);
+	
+	// 3. Convert ther answer format from char* to w_char*
+	for (int j = 0; j <= strlen(Out); j++) {
+		B[j] = (wchar_t)Out[j];
+	}
+
+	// 4. display the answer
+	UpdateData(1);
+	m_edit1 = B;
+	UpdateData(0);
+}
+
+// String Processing
+char    A[100]; // 100 bytes string, 1 byte each char
+wchar_t B[100]; // wchar_t: 2 bytes each char (only in VC 2017)
+
+
+float CcalculatorDlg::Add(float a, float b) {
+	return (a + b);
+}
+
+float CcalculatorDlg::Sub(float a, float b) {
+	return (a - b);
+}
+
+float CcalculatorDlg::Mul(float a, float b) {
+	return (a * b);
+}
+
+float CcalculatorDlg::Div(float a, float b) {
+	return (a / b);
+}
+
+// aritmetic
+void CcalculatorDlg::Op(char *In, char *Out) {
+	// 1. Easy vision: four arithmetic of single digits 
+	float a = (float)(In[0] - 0x30);
+	float b = (float)(In[2] - 0x30);
+	float c;
+	if (In[1] == '+') c = Add(a, b);
+	else if (In[1] == '-') c = Sub(a, b);
+	else if (In[1] == '*') c = Mul(a, b);
+	else if (In[1] == '/') c = Div(a, b);
+
+	// printf: print to screen
+	// fprintf: print to file
+	// sprintf: print to string array
+	sprintf_s(Out, 99, "%f", c);
 }
