@@ -1,7 +1,6 @@
 ﻿
 // EventDlg.cpp: 實作檔案
-//
-
+//事件(Event) practice: Timer, Mouse, (keyboard, Networks, sound recording, windows...)
 #include "pch.h"
 #include "framework.h"
 #include "Event.h"
@@ -65,6 +64,8 @@ BEGIN_MESSAGE_MAP(CEventDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CEventDlg::OnBnClickedButton1)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -153,3 +154,32 @@ HCURSOR CEventDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CEventDlg::OnBnClickedButton1()
+{
+	//Start Timer, show the newest time per second
+	SetTimer(123, 1000, 0);  //Timer representing code = 123, generate one event per second (1000ms)
+	SetTimer(1234, 1000, 0);
+	
+}
+
+
+void CEventDlg::OnTimer(UINT_PTR nIDEvent)  //處理timer副程式
+{
+	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
+	CTime t;   //MFC中處理時間之類別(class)
+	char S1[100];  //1 byte char
+	wchar_t S2[100]; //2 bytes char
+	int y, m1, d, h, m, s;
+	if (nIDEvent == 123) {
+		t = CTime::GetCurrentTime(); //取得目前時間
+		h = t.GetHour();		     //取得時
+		m = t.GetMinute();			 //取得分
+		s = t.GetSecond();           //取得秒
+		sprintf_s(S1, "%2d:%2d:%2d", h, m, s); //製造時間字串
+		for (int i = 0; i <= strlen(S1); i++) S2[i] = (wchar_t)S1[i];
+		SetWindowText(S2);        //顯示
+	}
+	CDialogEx::OnTimer(nIDEvent);
+}

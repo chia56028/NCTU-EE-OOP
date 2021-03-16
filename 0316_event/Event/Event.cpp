@@ -1,6 +1,5 @@
 ﻿
 // Event.cpp: 定義應用程式的類別表現方式。
-//
 
 #include "pch.h"
 #include "framework.h"

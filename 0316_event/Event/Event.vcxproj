@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{C42C1318-4DC6-4464-8049-146D28A7DEC4}</ProjectGuid>
+    <ProjectGuid>{C925E336-FB5C-439A-81C1-A2631E3E933F}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
     <RootNamespace>Event</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
