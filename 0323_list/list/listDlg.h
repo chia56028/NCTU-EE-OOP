@@ -11,6 +11,7 @@ class ClistDlg : public CDialogEx
 // 建構
 public:
 	ClistDlg(CWnd* pParent = nullptr);	// 標準建構函式
+	
 
 // 對話方塊資料
 #ifdef AFX_DESIGN_TIME
@@ -34,4 +35,7 @@ protected:
 public:
 	afx_msg void OnBnClickedButton1();
 	CString m_Edit1;
+	CListCtrl m_List1;
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult);
 };

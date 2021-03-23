@@ -61,6 +61,7 @@ void ClistDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_Edit1);
+	DDX_Control(pDX, IDC_LIST1, m_List1);
 }
 
 BEGIN_MESSAGE_MAP(ClistDlg, CDialogEx)
@@ -68,6 +69,8 @@ BEGIN_MESSAGE_MAP(ClistDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &ClistDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &ClistDlg::OnBnClickedButton2)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &ClistDlg::OnLvnItemchangedList1)
 END_MESSAGE_MAP()
 
 
@@ -176,10 +179,60 @@ void ClistDlg::OnBnClickedButton1()
 	//2. read the file
 	while (!(feof(f))) {
 		fscanf_s(f, "%s %d %d %d %d\n", &N[no], 10, &S[no][0], &S[no][1], &S[no][2], &S[no][3]);  //read the content of Book1 to the arrays
-		sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], 10, S[no][0], S[no][1], S[no][2], S[no][3]);
+		sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], S[no][0], S[no][1], S[no][2], S[no][3]);
 		UpdateData(1);
 		m_Edit1 += S1;
 		UpdateData(0);
-		//no++;
+		no++;
 	}
+}
+
+void Big5toUnicode(char *Big5, wchar_t *Unicode, int len) {
+	MultiByteToWideChar(950, 0, Big5, -1, Unicode, len + 1);
+}
+
+void ClistDlg::OnBnClickedButton2()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+	m_List1.InsertColumn(0, L"Name");		m_List1.SetColumnWidth(0, 60);
+	m_List1.InsertColumn(1, L"Chinese");	m_List1.SetColumnWidth(1, 60);
+	m_List1.InsertColumn(2, L"English");	m_List1.SetColumnWidth(2, 60);
+	m_List1.InsertColumn(3, L"Math");		m_List1.SetColumnWidth(3, 60);
+	m_List1.InsertColumn(4, L"Society");	m_List1.SetColumnWidth(4, 60);
+
+	//0. initialization
+	int S[100][4];  //4 subjects score
+	char N[100][10], S1[100]; //names
+	errno_t err;
+	FILE *f;
+	int no = 0;
+	//1. open the file
+	err = fopen_s(&f, "Book1.txt", "rb");
+	if (err != 0) {
+		SetWindowText(L"Book1 not found");
+		return;
+	}
+	//2. read the file
+	wchar_t temp[10];
+	while (!(feof(f))) {
+		fscanf_s(f, "%s %d %d %d %d\n", &N[no], 10, &S[no][0], &S[no][1], &S[no][2], &S[no][3]);  //read the content of Book1 to the arrays
+		//sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], 10, S[no][0], S[no][1], S[no][2], S[no][3]);
+		Big5toUnicode(&N[no][0], temp, strlen(&N[no][0]));
+		m_List1.InsertItem(no, temp);
+		for (int i = 0; i < 4; i++) {
+			sprintf_s(S1, "%d", S[no][i]);
+			Big5toUnicode(S1, temp, strlen(S1));
+			m_List1.SetItemText(no, i +1, temp);
+		}
+		no++;
+	}
+}
+
+
+
+void ClistDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
 }
