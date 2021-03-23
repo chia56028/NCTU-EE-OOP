@@ -163,20 +163,22 @@ HCURSOR ClistDlg::OnQueryDragIcon()
 
 void ClistDlg::OnBnClickedButton1()
 {
-	// TODO: 在此加入控制項告知處理常式程式碼
-	//0. initialization
-	int S[100][4];  //4 subjects score
-	char N[100][10], S1[100]; //names
+	// 0. initialization
+	int S[100][4];  // 4 subjects score
+	char N[100][10]; // names
+	char S1[100];
 	errno_t err;
 	FILE *f;
 	int no = 0;
-	//1. open the file
+
+	// 1. open the file
 	err = fopen_s(&f, "Book1.txt", "rb");
 	if (err != 0) {
 		SetWindowText(L"Book1 not found");
 		return;
 	}
-	//2. read the file
+
+	// 2. read the file
 	while (!(feof(f))) {
 		fscanf_s(f, "%s %d %d %d %d\n", &N[no], 10, &S[no][0], &S[no][1], &S[no][2], &S[no][3]);  //read the content of Book1 to the arrays
 		sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], S[no][0], S[no][1], S[no][2], S[no][3]);
@@ -216,7 +218,6 @@ void ClistDlg::OnBnClickedButton2()
 	wchar_t temp[10];
 	while (!(feof(f))) {
 		fscanf_s(f, "%s %d %d %d %d\n", &N[no], 10, &S[no][0], &S[no][1], &S[no][2], &S[no][3]);  //read the content of Book1 to the arrays
-		//sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], 10, S[no][0], S[no][1], S[no][2], S[no][3]);
 		Big5toUnicode(&N[no][0], temp, strlen(&N[no][0]));
 		m_List1.InsertItem(no, temp);
 		for (int i = 0; i < 4; i++) {
