@@ -254,26 +254,52 @@ void Swap(char Name[][10], int Score[][4], int a, int b){
 // F: sorting Direction (0: decreasing, 1: increasing)
 void Sorting(char Name[][10], int Score[][4], int N, int I, int F) {
 	int i, j, k;
-	// use bubble sort to sort 4 subjects
-	if (I >= 1 && I <= 4) {
-		for (i = 0; i < N; i++) {
-			for (j = i+1; j < N; j++) {
-				if (Score[i][I-1] > Score[j][I-1]) {
-					Swap(Name, Score, i, j);
+
+	if (F > 0) {
+		// use bubble sort to sort 4 subjects
+		if (I >= 1 && I <= 4) {
+			for (i = 0; i < N; i++) {
+				for (j = i + 1; j < N; j++) {
+					if (Score[i][I - 1] > Score[j][I - 1]) {
+						Swap(Name, Score, i, j);
+					}
+				}
+			}
+		}
+		// sort name
+		else {
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < N - 1; j++) {
+					if (strcmp(&Name[i][0], &Name[j][0]) > 0) {
+						Swap(Name, Score, i, j);
+					}
 				}
 			}
 		}
 	}
-	// sort name
 	else {
-		for (i = 0; i < N; i++) {
-			for (j = 0; j < N - 1; j++) {
-				if (strcmp(&Name[i][0], &Name[j][0]) < 0) {
-					Swap(Name, Score, i, j);
+		// use bubble sort to sort 4 subjects
+		if (I >= 1 && I <= 4) {
+			for (i = 0; i < N; i++) {
+				for (j = i + 1; j < N; j++) {
+					if (Score[i][I - 1] < Score[j][I - 1]) {
+						Swap(Name, Score, i, j);
+					}
+				}
+			}
+		}
+		// sort name
+		else {
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < N - 1; j++) {
+					if (strcmp(&Name[i][0], &Name[j][0]) < 0) {
+						Swap(Name, Score, i, j);
+					}
 				}
 			}
 		}
 	}
+	
 }
 
 
@@ -286,7 +312,7 @@ void ClistDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
 }
 
 
-
+int dir = 0;
 void ClistDlg::OnItemclickList1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
@@ -296,7 +322,8 @@ void ClistDlg::OnItemclickList1(NMHDR *pNMHDR, LRESULT *pResult)
 	int I = pLV->iItem;
 
 	// 2. sort the column
-	Sorting(N, S, no, I, 0);
+	dir = (dir + 1) % 2;
+	Sorting(N, S, no, I, dir);
 
 	// 3. redisplay
 	m_List1.DeleteAllItems();
