@@ -72,11 +72,13 @@ BEGIN_MESSAGE_MAP(ClistDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &ClistDlg::OnBnClickedButton2)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &ClistDlg::OnLvnItemchangedList1)
 	ON_NOTIFY(HDN_ITEMCLICK, 0, &ClistDlg::OnItemclickList1)
+	ON_NOTIFY(LVN_COLUMNCLICK, IDC_LIST1, &ClistDlg::OnColumnclickList1)
+	ON_NOTIFY(NM_CLICK, IDC_LIST1, &ClistDlg::OnClickList1)
 END_MESSAGE_MAP()
 
 
 // ClistDlg 訊息處理常式
-
+CToolTipCtrl m_TP;
 BOOL ClistDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -107,6 +109,8 @@ BOOL ClistDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 設定小圖示
 
 	// TODO: 在此加入額外的初始設定
+	m_TP.Create(this);
+	m_TP.Activate(TRUE);
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -341,6 +345,54 @@ void ClistDlg::OnItemclickList1(NMHDR *pNMHDR, LRESULT *pResult)
 		}
 	}
 
+	*pResult = 0;
+}
+
+
+void ClistDlg::OnColumnclickList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	
 
 	*pResult = 0;
+}
+
+
+void ClistDlg::OnClickList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	// 1. get column number
+	NMLISTVIEW *pLV = (NMLISTVIEW *)pNMHDR;
+	int I = pLV->iItem, J = pLV->iSubItem;
+
+	// 2. calculate total score of column
+	if (J == 0 && I >= 0) {
+		int sum = 0;
+		for (int i = 0; i < 4; i++) sum += S[I][i];
+		char S1[100];
+		wchar_t temp[100];
+		sprintf_s(S1, "%s-total score=%d", &N[I-1][10], sum);
+		Big5toUnicode(S1, temp, strlen(S1));
+
+		// 3. display on title
+		SetWindowText(temp);
+
+		// 4. display ToolTip
+		m_TP.AddTool(GetDlgItem(IDC_LIST1), temp, 0, 0);
+
+	}
+	
+
+	*pResult = 0;
+}
+
+
+BOOL ClistDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此加入特定的程式碼和 (或) 呼叫基底類別
+	if (m_TP.m_hWnd != NULL) m_TP.RelayEvent(pMsg);
+
+	return CDialogEx::PreTranslateMessage(pMsg);
 }
