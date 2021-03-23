@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(ClistDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &ClistDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &ClistDlg::OnBnClickedButton2)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &ClistDlg::OnLvnItemchangedList1)
+	ON_NOTIFY(HDN_ITEMCLICK, 0, &ClistDlg::OnItemclickList1)
 END_MESSAGE_MAP()
 
 
@@ -193,6 +194,9 @@ void Big5toUnicode(char *Big5, wchar_t *Unicode, int len) {
 	MultiByteToWideChar(950, 0, Big5, -1, Unicode, len + 1);
 }
 
+int S[100][4];  //4 subjects score
+char N[100][10]; //names
+int no = 0; // number of people
 void ClistDlg::OnBnClickedButton2()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
@@ -203,11 +207,10 @@ void ClistDlg::OnBnClickedButton2()
 	m_List1.InsertColumn(4, L"Society");	m_List1.SetColumnWidth(4, 60);
 
 	//0. initialization
-	int S[100][4];  //4 subjects score
-	char N[100][10], S1[100]; //names
+	char S1[100];
 	errno_t err;
 	FILE *f;
-	int no = 0;
+	
 	//1. open the file
 	err = fopen_s(&f, "Book1.txt", "rb");
 	if (err != 0) {
@@ -223,9 +226,53 @@ void ClistDlg::OnBnClickedButton2()
 		for (int i = 0; i < 4; i++) {
 			sprintf_s(S1, "%d", S[no][i]);
 			Big5toUnicode(S1, temp, strlen(S1));
-			m_List1.SetItemText(no, i +1, temp);
+			m_List1.SetItemText(no, i+1, temp);
 		}
 		no++;
+	}
+}
+
+void Swap(char Name[][10], int Score[][4], int a, int b){
+	// exchange names
+	char T[10];
+	strcpy_s(T, &Name[a][0]);
+	strcpy_s(&Name[a][0], 10, &Name[b][0]);
+	strcpy_s(&Name[b][0], 10, T);
+
+	// exchange scores
+	for (int i = 0; i < 4; i++) {
+		Score[a][i] += Score[b][i];
+		Score[b][i] = Score[a][i] - Score[b][i];
+		Score[a][i] -= Score[b][i];
+	}
+}
+
+// Name[][10]: record names
+// Score[][4]: record 4 subjects scores
+// N: record number of people
+// I: record the column (item) which is going to sort (0: Name, 1: Chinese, 2: English, 3: Math, 4: Social Science)
+// F: sorting Direction (0: decreasing, 1: increasing)
+void Sorting(char Name[][10], int Score[][4], int N, int I, int F) {
+	int i, j, k;
+	// use bubble sort to sort 4 subjects
+	if (I >= 1 && I <= 4) {
+		for (i = 0; i < N; i++) {
+			for (j = i+1; j < N; j++) {
+				if (Score[i][I-1] > Score[j][I-1]) {
+					Swap(Name, Score, i, j);
+				}
+			}
+		}
+	}
+	// sort name
+	else {
+		for (i = 0; i < N; i++) {
+			for (j = 0; j < N - 1; j++) {
+				if (strcmp(&Name[i][0], &Name[j][0]) < 0) {
+					Swap(Name, Score, i, j);
+				}
+			}
+		}
 	}
 }
 
@@ -235,5 +282,38 @@ void ClistDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	// TODO: 在此加入控制項告知處理常式程式碼
+	*pResult = 0;
+}
+
+
+
+void ClistDlg::OnItemclickList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	// TODO: 在此加入控制項告知處理常式程式碼
+	// 1. get item number which you click
+	NMLISTVIEW *pLV = (NMLISTVIEW *)pNMHDR;
+	int I = pLV->iItem;
+
+	// 2. sort the column
+	Sorting(N, S, no, I, 0);
+
+	// 3. redisplay
+	m_List1.DeleteAllItems();
+
+	wchar_t temp[10];
+	char S1[100];
+
+	for (int n = 0; n < no; n++) {
+		Big5toUnicode(&N[n][0], temp, strlen(&N[n][0]));
+		m_List1.InsertItem(n, temp);
+		for (int i = 0; i < 4; i++) {
+			sprintf_s(S1, "%d", S[n][i]);
+			Big5toUnicode(S1, temp, strlen(S1));
+			m_List1.SetItemText(n, i + 1, temp);
+		}
+	}
+
+
 	*pResult = 0;
 }
