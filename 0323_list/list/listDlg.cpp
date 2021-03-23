@@ -52,6 +52,7 @@ END_MESSAGE_MAP()
 
 ClistDlg::ClistDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_LIST_DIALOG, pParent)
+	, m_Edit1(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +60,14 @@ ClistDlg::ClistDlg(CWnd* pParent /*=nullptr*/)
 void ClistDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT1, m_Edit1);
 }
 
 BEGIN_MESSAGE_MAP(ClistDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &ClistDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +156,30 @@ HCURSOR ClistDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void ClistDlg::OnBnClickedButton1()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+	//0. initialization
+	int S[100][4];  //4 subjects score
+	char N[100][10], S1[100]; //names
+	errno_t err;
+	FILE *f;
+	int no = 0;
+	//1. open the file
+	err = fopen_s(&f, "Book1.txt", "rb");
+	if (err != 0) {
+		SetWindowText(L"Book1 not found");
+		return;
+	}
+	//2. read the file
+	while (!(feof(f))) {
+		fscanf_s(f, "%s %d %d %d %d\n", &N[no], 10, &S[no][0], &S[no][1], &S[no][2], &S[no][3]);  //read the content of Book1 to the arrays
+		sprintf_s(S1, "%s %d %d %d %d\r\n", N[no], 10, S[no][0], S[no][1], S[no][2], S[no][3]);
+		UpdateData(1);
+		m_Edit1 += S1;
+		UpdateData(0);
+		//no++;
+	}
+}
