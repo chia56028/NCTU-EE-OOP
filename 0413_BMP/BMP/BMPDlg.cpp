@@ -305,10 +305,26 @@ void CBMPDlg::OnBnClickedButton3()
 	Read_File(Mask, &W2, &H2, &lp2);
 
 	// 3. Mix two picture
+	int x, y, z1, z2;
+	z1 = (4 - ((W1 * 3) % 4)) % 4;
+	z2 = (4 - ((W2 * 3) % 4)) % 4;
+	unsigned char *lpp1, *lpp2;
+	for (y = 0; y < H2; y++) {
+		for (x = 0; x < W2; x++) {
+			lpp2 = &lp2[y * (W2 * 3 + z2) + x * 3];
+			lpp1 = &lp1[(y+100) * (W1 * 3 + z1) + x * 3];
+			if ((lpp2[0] < 108) && (lpp2[1] > 150) && (lpp2[2] < 108)) {
+				;
+			}
+			else {
+				memcpy(lpp1, lpp2, 3);
+			}
+		}
+	}
 
 	// 4. Draw picture
 	Draw_BitMap(W1, H1, 0, 0, lp1);
-
+	//Draw_BitMap(W2, H2, 10+W1, 0, lp2);
 }
 
 void CBMPDlg::Read_File(char *File, int *W, int *H, unsigned char **lp) {
@@ -333,7 +349,7 @@ void CBMPDlg::Read_File(char *File, int *W, int *H, unsigned char **lp) {
 	*H = ((int)UCBuf[22] << 0) + ((int)UCBuf[23] << 8) + ((int)UCBuf[24] << 16) + ((int)UCBuf[25] << 24);
 
 	// 3. Declare memory
-	*lp = (unsigned char*)malloc((*W) * 3 * (*H));
+	*lp = (unsigned char*)malloc((*W+1) * 3 * (*H));
 
 	// 4. Read Picture
 	fread(*lp, (*W) * 3, (*H), In);
