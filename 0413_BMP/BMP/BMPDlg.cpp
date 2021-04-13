@@ -180,7 +180,9 @@ void CBMPDlg::OnBnClickedButton1()
 
 	// 3. draw picture
 	HDC hdc = ::GetDC(m_hWnd);
-	int x, y;
+	int x, y, z;
+	// width * 3 channel
+	z = (4 - ((Width * 3) % 4)) % 4;
 	for (y = 0; y < Height; y++) {
 		for (x = 0; x < Width; x++) {
 			fread(UCBuf, 1, 3, In);
@@ -191,6 +193,7 @@ void CBMPDlg::OnBnClickedButton1()
 			MoveToEx(hdc, x, Height - y, 0);
 			LineTo(hdc, x + 1, Height - y);
 		}
+		fread(UCBuf, 1, z, In);
 	}
 
 
