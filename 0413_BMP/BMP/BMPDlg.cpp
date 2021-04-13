@@ -186,6 +186,13 @@ void CBMPDlg::OnBnClickedButton1()
 	for (y = 0; y < Height; y++) {
 		for (x = 0; x < Width; x++) {
 			fread(UCBuf, 1, 3, In);
+			// change color: red(2) => green(1)
+			if ((UCBuf[0] < 128) && (UCBuf[1] < 128) && (UCBuf[2] > 128)) {
+				// UCBuf[3] is tmp
+				UCBuf[3] = UCBuf[1];
+				UCBuf[1] = UCBuf[2];
+				UCBuf[2] = UCBuf[3];
+			}
 			// set color
 			CPen P(PS_SOLID, 1, RGB(UCBuf[2], UCBuf[1], UCBuf[0]));
 			SelectObject(hdc, P);
