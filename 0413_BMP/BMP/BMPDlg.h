@@ -4,6 +4,10 @@
 
 #pragma once
 
+// Header File & Library for painting
+#include "vfw.h"
+#pragma comment(lib, "vfw32.lib")
+
 
 // CBMPDlg dialog
 class CBMPDlg : public CDialogEx
@@ -11,6 +15,7 @@ class CBMPDlg : public CDialogEx
 // Construction
 public:
 	CBMPDlg(CWnd* pParent = nullptr);	// standard constructor
+	int Draw_BitMap(int x, int y, int PX, int PY, unsigned char * Data);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -33,4 +38,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
 };

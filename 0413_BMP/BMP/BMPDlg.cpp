@@ -66,6 +66,7 @@ BEGIN_MESSAGE_MAP(CBMPDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CBMPDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CBMPDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -205,4 +206,83 @@ void CBMPDlg::OnBnClickedButton1()
 
 
 
+}
+
+
+void CBMPDlg::OnBnClickedButton2()
+{
+	// 1. Load *.BMP file
+	errno_t err;
+	FILE *In;
+	err = fopen_s(&In, "hero.bmp", "rb");
+	if (err != 0) {
+		SetWindowText(L"File hero.bmp not found");
+		return;
+	}
+	else {
+		SetWindowText(L"File opened successfully");
+	}
+
+	// 2. Read infomation of width, height
+	int Width, Height;
+	// BMP header has 54 bytes (14 for file header; 40 for information header)
+	unsigned char UCBuf[54];
+	fread(UCBuf, 1, 54, In);
+	Width = ((int)UCBuf[18] << 0) + ((int)UCBuf[19] << 8) + ((int)UCBuf[20] << 16) + ((int)UCBuf[21] << 24);
+	Height = ((int)UCBuf[22] << 0) + ((int)UCBuf[23] << 8) + ((int)UCBuf[24] << 16) + ((int)UCBuf[25] << 24);
+
+	// 3. Declare memory
+	unsigned char *lp = (unsigned char*)malloc(Width * 3 * Height);
+
+	// 4. Read Picture
+	fread(lp, Width * 3, Height, In);
+
+	// 5. Draw Picture
+	Draw_BitMap(Width, Height, 0, 0, lp);
+}
+
+// =============================================================
+// === Draw_BitMap()
+// =============================================================
+int CBMPDlg::Draw_BitMap(int x, int y, int PX, int PY, unsigned char *Data)//x=寬 y=長  PX=x軸起始點 PY=y軸起始點
+{
+	char ErrMsg[200];
+	HDC    	hdc;
+	HDRAWDIB   hdd;
+	BITMAPINFO bmpinfo;
+
+	// ====== Draw Init =================
+	bmpinfo.bmiHeader.biSize = 40;
+	bmpinfo.bmiHeader.biWidth = x;
+	bmpinfo.bmiHeader.biHeight = y;
+	bmpinfo.bmiHeader.biPlanes = 1;
+	bmpinfo.bmiHeader.biBitCount = 24;
+	bmpinfo.bmiHeader.biCompression = 0;
+	bmpinfo.bmiHeader.biSizeImage = x * y * 3;
+	bmpinfo.bmiHeader.biXPelsPerMeter = 0;
+	bmpinfo.bmiHeader.biYPelsPerMeter = 0;
+	bmpinfo.bmiHeader.biClrUsed = 0;
+	bmpinfo.bmiHeader.biClrImportant = 0;
+
+	if (!(hdd = DrawDibOpen()))
+	{
+		strcpy_s(ErrMsg, "DrawDipOpen Error!"); return -1;
+	}
+	if (!(hdc = ::GetDC(m_hWnd)))
+	{
+		strcpy_s(ErrMsg, " GetDC Error!"); return -1;
+	}
+	if (!DrawDibBegin(hdd, hdc, -1, -1, &bmpinfo.bmiHeader, x, y, NULL))
+	{
+		strcpy_s(ErrMsg, "DrawDibBegin error!"); return -1;
+	}
+	if (!DrawDibDraw(hdd, hdc, PX, PY, x, y, &bmpinfo.bmiHeader, Data, 0, 0, x, y, DDF_SAME_DRAW | DDF_SAME_HDC))
+	{
+		strcpy_s(ErrMsg, "DrawDibDraw error"); return -1;
+	}
+	if (!DrawDibEnd(hdd))
+	{
+		strcpy_s(ErrMsg, "initDisplay DrawDibBegin Error!"); return -1;
+	}
+	return 0;
 }
