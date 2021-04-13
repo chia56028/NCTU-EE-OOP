@@ -39,4 +39,6 @@ protected:
 public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton3();
+	void Read_File(char * File, int * W, int * H, unsigned char ** lp);
 };

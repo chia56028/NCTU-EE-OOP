@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CBMPDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CBMPDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CBMPDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CBMPDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -285,4 +286,55 @@ int CBMPDlg::Draw_BitMap(int x, int y, int PX, int PY, unsigned char *Data)//x=¼
 		strcpy_s(ErrMsg, "initDisplay DrawDibBegin Error!"); return -1;
 	}
 	return 0;
+}
+
+
+void CBMPDlg::OnBnClickedButton3()
+{
+	char Picture[100] = { "night.bmp" };
+	char Mask[100] = { "girl.bmp" };
+
+	// 1. Read background image
+	int W1, H1;
+	unsigned char *lp1;
+	Read_File(Picture, &W1, &H1, &lp1);
+
+	// 2. Read mask image
+	int W2, H2;
+	unsigned char *lp2;
+	Read_File(Mask, &W2, &H2, &lp2);
+
+	// 3. Mix two picture
+
+	// 4. Draw picture
+	Draw_BitMap(W1, H1, 0, 0, lp1);
+
+}
+
+void CBMPDlg::Read_File(char *File, int *W, int *H, unsigned char **lp) {
+	// 1. Load *.BMP file
+	errno_t err;
+	FILE *In;
+	err = fopen_s(&In, File, "rb");
+	if (err != 0) {
+		SetWindowText(L"File not found");
+		return;
+	}
+	else {
+		SetWindowText(L"File opened successfully");
+	}
+
+	// 2. Read infomation of width, height
+	int Width, Height;
+	// BMP header has 54 bytes (14 for file header; 40 for information header)
+	unsigned char UCBuf[54];
+	fread(UCBuf, 1, 54, In);
+	*W = ((int)UCBuf[18] << 0) + ((int)UCBuf[19] << 8) + ((int)UCBuf[20] << 16) + ((int)UCBuf[21] << 24);
+	*H = ((int)UCBuf[22] << 0) + ((int)UCBuf[23] << 8) + ((int)UCBuf[24] << 16) + ((int)UCBuf[25] << 24);
+
+	// 3. Declare memory
+	*lp = (unsigned char*)malloc((*W) * 3 * (*H));
+
+	// 4. Read Picture
+	fread(*lp, (*W) * 3, (*H), In);
 }
