@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CBMPDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CBMPDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +154,45 @@ HCURSOR CBMPDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CBMPDlg::OnBnClickedButton1()
+{
+	// 1. open *.BMP file
+	errno_t err;
+	FILE *In;
+	err = fopen_s(&In, "hero.bmp", "rb");
+	if (err != 0) {
+		SetWindowText(L"File hero.bmp not found");
+		return;
+	}
+	else {
+		SetWindowText(L"File opened successfully");
+	}
+
+	// 2. read infomation of width, height
+	int Width, Height;
+	// BMP header has 54 bytes (14 for file header; 40 for information header)
+	unsigned char UCBuf[54];
+	fread(UCBuf, 1, 54, In);
+	Width = ((int)UCBuf[18] << 0)+ ((int)UCBuf[19] << 8)+ ((int)UCBuf[20] << 16)+ ((int)UCBuf[21] << 24);
+	Height = ((int)UCBuf[22] << 0) + ((int)UCBuf[23] << 8) + ((int)UCBuf[24] << 16) + ((int)UCBuf[25] << 24);
+
+	// 3. draw picture
+	HDC hdc = ::GetDC(m_hWnd);
+	int x, y;
+	for (y = 0; y < Height; y++) {
+		for (x = 0; x < Width; x++) {
+			fread(UCBuf, 1, 3, In);
+			// set color
+			CPen P(PS_SOLID, 1, RGB(UCBuf[2], UCBuf[1], UCBuf[0]));
+			SelectObject(hdc, P);
+			// draw a point
+			MoveToEx(hdc, x, Height - y, 0);
+			LineTo(hdc, x + 1, Height - y);
+		}
+	}
+
+
+
+}
