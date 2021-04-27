@@ -1,5 +1,5 @@
-
-// breakout.h : main header file for the PROJECT_NAME application
+﻿
+// breakout.h: PROJECT_NAME 應用程式的主要標頭檔
 //
 
 #pragma once
@@ -8,11 +8,11 @@
 	#error "include 'pch.h' before including this file for PCH"
 #endif
 
-#include "resource.h"		// main symbols
+#include "resource.h"		// 主要符號
 
 
 // CbreakoutApp:
-// See breakout.cpp for the implementation of this class
+// 查看 breakout.cpp 以了解此類別的實作
 //
 
 class CbreakoutApp : public CWinApp
@@ -20,11 +20,11 @@ class CbreakoutApp : public CWinApp
 public:
 	CbreakoutApp();
 
-// Overrides
+// 覆寫
 public:
 	virtual BOOL InitInstance();
 
-// Implementation
+// 程式碼實作
 
 	DECLARE_MESSAGE_MAP()
 };

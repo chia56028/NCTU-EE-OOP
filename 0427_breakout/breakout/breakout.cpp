@@ -1,5 +1,5 @@
-
-// breakout.cpp : Defines the class behaviors for the application.
+﻿
+// breakout.cpp: 定義應用程式的類別表現方式。
 //
 
 #include "pch.h"
@@ -19,34 +19,34 @@ BEGIN_MESSAGE_MAP(CbreakoutApp, CWinApp)
 END_MESSAGE_MAP()
 
 
-// CbreakoutApp construction
+// CbreakoutApp 建構
 
 CbreakoutApp::CbreakoutApp()
 {
-	// support Restart Manager
+	// 支援重新啟動管理員
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 
-	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance
+	// TODO: 在此加入建構程式碼，
+	// 將所有重要的初始設定加入 InitInstance 中
 }
 
 
-// The one and only CbreakoutApp object
+// 唯一一個 CbreakoutApp 物件
 
 CbreakoutApp theApp;
 
 
-// CbreakoutApp initialization
+// CbreakoutApp 初始化
 
 BOOL CbreakoutApp::InitInstance()
 {
-	// InitCommonControlsEx() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
+	// 假如應用程式資訊清單指定使用 ComCtl32.dll 6 (含) 以後版本，
+	// 來啟動視覺化樣式，在 Windows XP 上，則需要 InitCommonControls()。
+	// 否則任何視窗的建立都將失敗。
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
+	// 設定要包含所有您想要用於應用程式中的
+	// 通用控制項類別。
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
@@ -55,42 +55,42 @@ BOOL CbreakoutApp::InitInstance()
 
 	AfxEnableControlContainer();
 
-	// Create the shell manager, in case the dialog contains
-	// any shell tree view or shell list view controls.
+	// 建立殼層管理員，以防對話方塊包含
+	// 任何殼層樹狀檢視或殼層清單檢視控制項。
 	CShellManager *pShellManager = new CShellManager;
 
-	// Activate "Windows Native" visual manager for enabling themes in MFC controls
+	// 啟動 [Windows 原生] 視覺化管理員可啟用 MFC 控制項中的主題
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	// of your final executable, you should remove from the following
-	// the specific initialization routines you do not need
-	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	// 標準初始設定
+	// 如果您不使用這些功能並且想減少
+	// 最後完成的可執行檔大小，您可以
+	// 從下列程式碼移除不需要的初始化常式，
+	// 變更儲存設定值的登錄機碼
+	// TODO: 您應該適度修改此字串
+	// (例如，公司名稱或組織名稱)
+	SetRegistryKey(_T("本機 AppWizard 所產生的應用程式"));
 
 	CbreakoutDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with OK
+		// TODO: 在此放置於使用 [確定] 來停止使用對話方塊時
+		// 處理的程式碼
 	}
 	else if (nResponse == IDCANCEL)
 	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with Cancel
+		// TODO: 在此放置於使用 [取消] 來停止使用對話方塊時
+		// 處理的程式碼
 	}
 	else if (nResponse == -1)
 	{
-		TRACE(traceAppMsg, 0, "Warning: dialog creation failed, so application is terminating unexpectedly.\n");
-		TRACE(traceAppMsg, 0, "Warning: if you are using MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
+		TRACE(traceAppMsg, 0, "警告: 對話方塊建立失敗，因此，應用程式意外終止。\n");
+		TRACE(traceAppMsg, 0, "警告: 如果您要在對話方塊上使用 MFC 控制項，則無法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
 	}
 
-	// Delete the shell manager created above.
+	// 刪除上面所建立的殼層管理員。
 	if (pShellManager != nullptr)
 	{
 		delete pShellManager;
@@ -100,8 +100,8 @@ BOOL CbreakoutApp::InitInstance()
 	ControlBarCleanUp();
 #endif
 
-	// Since the dialog has been closed, return FALSE so that we exit the
-	//  application, rather than start the application's message pump.
+	// 因為已經關閉對話方塊，傳回 FALSE，所以我們會結束應用程式，
+	// 而非提示開始應用程式的訊息。
 	return FALSE;
 }
 
