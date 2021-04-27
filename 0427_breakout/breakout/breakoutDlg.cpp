@@ -161,10 +161,11 @@ HCURSOR CbreakoutDlg::OnQueryDragIcon()
 // 遊戲平台規格
 #define W 630
 #define H 700
+#define N 3   // number of ball
 
 HDC hdc; // 繪圖用
 int px, py, pw, ph, pF; // 接球平台參數
-int cx, cy, r, dx, dy;	// 球座標
+int cx[N], cy[N], cs[N], cc[N], r[N], dx[N], dy[N];	// 球座標
 
 // 繪出球
 void Ball(HDC hdc, int cx, int cy, int r, int C) {
@@ -236,13 +237,23 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 	Rect(hdc, px, py, px+pw, py + ph, 0xFF0000, 1);
 
 	// 3. 繪出球(會隨時間移動)
-	// (cx, cy): 球心座標
-	// r: 球半徑
-	// (dx, dy): 球移動向量
-	cx = W / 2; cy = H / 2; r = 10; dx = 5; dy = -11;
-	Ball(hdc, cx, cy, r, 0xFF00FF);
-	SetTimer(123, 20, 0); // 每100ms呼叫Timer移動球
-	
+	// param (cx, cy): 球心座標
+	// param r: 球半徑
+	// param (dx, dy): 球移動向量
+	// param cs: status of ball (0: gameover, 1: playing)
+	// param cc: color of ball
+	for (int i = 0; i < N; i++) {
+		cx[i] = W / 2;
+		cy[i] = H / 2;
+		r[i] = 10+(rand()%10);
+		dx[i] = 3+(rand()%7);
+		dy[i] = -7-(rand()%9);
+		cs[i] = 1;
+		cc[i] = rand()+(rand()<<16);
+		Ball(hdc, cx[i], cy[i], r[i], cc[i]);
+	}
+
+	SetTimer(123, 20, 0); // 每100ms呼叫Timer移動球	
 }
 
 
@@ -281,53 +292,63 @@ void CbreakoutDlg::OnMouseMove(UINT nFlags, CPoint point)
 void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 123) {
-		// 1.塗銷舊球
-		Ball(hdc, cx, cy, r, 0xF0F0F0);
-		// 2.改變球新座標，檢查邊界
-		cx += dx; cy += dy;
-		if ((cx - r) < 2) {
-			cx = r + 2;
-			dx *= -1;
-		}
-		else if ((cx + r) > (W - 1)) {
-			cx = W - 1 - r;
-			dx *= -1;
-		}
+		for (int i = 0; i < N; i++) {
+			if (cs[i]==1) {
+				// 1.塗銷舊球
+				Ball(hdc, cx[i], cy[i], r[i], 0xF0F0F0);
+
+				// 2.改變球新座標，檢查邊界
+				cx[i] += dx[i]; cy[i] += dy[i];
+				if ((cx[i] - r[i]) < 2) {
+					cx[i] = r[i] + 2;
+					dx[i] *= -1;
+				}
+				else if ((cx[i] + r[i]) > (W - 1)) {
+					cx[i] = W - 1 - r[i];
+					dx[i] *= -1;
+				}
+
+				if ((cy[i] - r[i]) < 2) {
+					cy[i] = r[i] + 2;
+					dy[i] *= -1;
+				}
+
+				else if ((cy[i] + r[i]) > (H - 1)) {
+					cy[i] = H - 1 - r[i];
+					dy[i] *= -1;
+				}
 			
-		if ((cy - r) < 2) {
-			cy = r + 2;
-			dy *= -1;
-		}
-			
-		else if ((cy + r) > (H - 1)) {
-			cy = H - 1 - r;
-			dy *= -1;
-		}
 
-		// 2.3. auto play (send mouse events)
-		CPoint P;
-		P.x = cx; // send x-asix of ball to mouse and make mouse move
-		pF = 1;   // click mouse
-		OnMouseMove(0, P);
+				// 2.3. auto play (send mouse events)
+				if (cy[i] + r[i] >= py-80) {
+					CPoint P;
+					P.x = cx[i]; // send x-asix of ball to mouse and make mouse move
+					pF = 1;      // click mouse
+					OnMouseMove(0, P);
+				}
+				
 
 
-		// 2.5. check (1)if ball touch the button (2)if platform couch the ball
-		if ((cy + r) >= py) { // buttom of ball touch upper edge of platform 
-			if ((cx < px) || (cx > (px + pw))) { // ball falls outside the platform
-				KillTimer(123); // ball stops moving
-				Ball(hdc, cx, py + ph - r, r, 0xFFF00FF);
-				SetWindowText(L"Didn't catch the ball");
-				PlaySound(L"abc.wav", 0, SND_ASYNC);
+				// 2.5. check (1)if ball touch the button (2)if platform couch the ball
+				if ((cy[i] + r[i]) >= py) { // buttom of ball touch upper edge of platform 
+					if ((cx[i] < px) || (cx[i] > (px + pw))) { // ball falls outside the platform
+						KillTimer(123); // ball stops moving
+						Ball(hdc, cx[i], py + ph - r[i], r[i], cc[i]);
+						SetWindowText(L"Didn't catch the ball");
+						PlaySound(L"abc.wav", 0, SND_ASYNC);
+					}
+					else { // while catch the ball
+						cy[i] = cy[i] - r[i] - 1;
+						dy[i] *= -1;
+						PlaySound(L"cammra.wav", 0, SND_ASYNC);
+					}
+				}
+
+				// 3.繪出新球
+				Ball(hdc, cx[i], cy[i], r[i], cc[i]);
 			}
-			else { // while catch the ball
-				cy = cy - r - 1;
-				dy *= -1;
-				PlaySound(L"cammra.wav", 0, SND_ASYNC);
-			}
 		}
-			
-		// 3.繪出新球
-		Ball(hdc, cx, cy, r, 0xFF00FF);
+		
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
