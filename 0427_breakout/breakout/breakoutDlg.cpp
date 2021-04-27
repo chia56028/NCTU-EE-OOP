@@ -231,7 +231,7 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 	// px=平台左邊x座標, py=平台左邊y座標
 	// pw=平台寬度, ph=平台厚度
 	// pF=紀錄滑鼠按下狀態
-	//接球平台參數
+	// 接球平台參數
 	ph = 15;  px = W / 2 - pw / 2; py = H - ph - 5; pw = 80; pF = 0;
 	Rect(hdc, px, py, px+pw, py + ph, 0xFF0000, 1);
 
@@ -274,7 +274,10 @@ void CbreakoutDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
-
+// handle movement of ball
+// For PlaySound() we need to include:
+#include "mmsystem.h"
+#pragma comment (lib, "winmm.lib")
 void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 123) {
@@ -299,6 +302,21 @@ void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 		else if ((cy + r) > (H - 1)) {
 			cy = H - 1 - r;
 			dy *= -1;
+		}
+
+		// 2.5. check (1)if ball touch the button (2)if platform couch the ball
+		if ((cy + r) >= py) { // buttom of ball touch upper edge of platform 
+			if ((cx < px) || (cx > (px + pw))) { // ball falls outside the platform
+				KillTimer(123); // ball stops moving
+				Ball(hdc, cx, py + ph - r, r, 0xFFF00FF);
+				SetWindowText(L"Didn't catch the ball");
+				PlaySound(L"abc.wav", 0, SND_ASYNC);
+			}
+			else { // while catch the ball
+				cy = cy - r - 1;
+				dy *= -1;
+				PlaySound(L"cammra.wav", 0, SND_ASYNC);
+			}
 		}
 			
 		// 3.繪出新球
