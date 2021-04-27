@@ -304,6 +304,13 @@ void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 			dy *= -1;
 		}
 
+		// 2.3. auto play (send mouse events)
+		CPoint P;
+		P.x = cx; // send x-asix of ball to mouse and make mouse move
+		pF = 1;   // click mouse
+		OnMouseMove(0, P);
+
+
 		// 2.5. check (1)if ball touch the button (2)if platform couch the ball
 		if ((cy + r) >= py) { // buttom of ball touch upper edge of platform 
 			if ((cx < px) || (cx > (px + pw))) { // ball falls outside the platform
