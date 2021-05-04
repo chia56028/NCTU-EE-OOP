@@ -161,7 +161,7 @@ HCURSOR CbreakoutDlg::OnQueryDragIcon()
 // 遊戲平台規格
 #define W 630
 #define H 700
-#define N 3   // number of ball
+#define N 1   // number of ball
 #define W1 10 // number of bricks on the horizontal plane
 #define H1 6  // number of bricks on the vertical plane
 
@@ -169,7 +169,12 @@ HCURSOR CbreakoutDlg::OnQueryDragIcon()
 // 0-1 coordinate (left, up)
 // 2-3 coordinate (right, down)
 // 4   RGB color of brick
-// 5   state of brick (0: not exist, 1: exist, 2: fall down, 3: stone...)
+// 5   state of brick 
+//  - 0: not exist
+//  - 1: exist, hit 1->0
+//  - 2/3: fall down, 2->3->0 (color won't change)
+//  - 4/5: fall down, 4->5->0 (twinkle)
+//  - 6/7: stone, hit 6->7->0
 int T_bricks[H1][W1][6];
 
 HDC hdc; // 繪圖用
@@ -241,16 +246,23 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 	for (int y = 0; y < H1; y++) {
 		for (int x = 0; x < W1; x++) {
 			int *brick = T_bricks[y][x];
-			*(brick + 0) = 5 + x*(W/W1);             // x-coordinate of top left
-			*(brick + 1) = 5 + 40*y;                   // y-coordinate of top left
-			*(brick + 2) = 5 + (x+1)*(W/W1) - 10; // x-coordinate of bottom right
-			*(brick + 3) = 5 + 40*(y+1) - 10;            // y-coordinate of bottom right
+			*(brick + 0) = 5 + x*(W/W1);           // x-coordinate of top left
+			*(brick + 1) = 5 + 40*y;               // y-coordinate of top left
+			*(brick + 2) = 5 + (x+1)*(W/W1) - 10;  // x-coordinate of bottom right
+			*(brick + 3) = 5 + 40*(y+1) - 10;      // y-coordinate of bottom right
 			*(brick + 4) = rand()+ (rand()<<16);   // RGB color
-			*(brick + 5) = rand()%2;                      // state
-			
+			*(brick + 5) = rand()%2;               // state
+		}
+	}
+	for (int y = 0; y < H1; y++) {
+		for (int x = 0; x < W1; x++) {
+			int *brick = T_bricks[y][x];
 			if (*(brick + 5) != 0) {
 				Rect(hdc, *(brick + 0), *(brick + 1), *(brick + 2), *(brick + 3), *(brick + 4), 1);
-			}			
+			}
+			else {
+				Rect(hdc, *(brick + 0), *(brick + 1), *(brick + 2), *(brick + 3), 0xF0F0F0, 1);
+			}
 		}
 	}
 
@@ -311,6 +323,49 @@ void CbreakoutDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
+// check if ith ball (cx[i], cy[i], r[i]) hits the brick
+void Check(int i) {
+	for (int y = 0; y < H1; y++) {
+		for (int x = 0; x < W1; x++) {
+			int *b = T_bricks[y][x];
+			if (*(b + 5) != 0) {
+				if (
+					// hit bottom
+					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
+					(cx[i] + r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2))) ||
+					// hit top
+					((cy[i] + r[i] > *(b + 3)) && (cy[i] + r[i] < *(b + 1)) &&
+					(cx[i] + r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2)))
+					) 
+				{
+					// 1. brick disappear
+					*(b + 5) = 0;
+					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+
+					// 2. ball flip
+					dy[i] = 0 - dy[i];
+				}else if (
+					// hit left
+					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
+					(cx[i] + r[i] > *(b + 0)) && (cx[i] + r[i] < *(b + 2))) ||
+					// hit right
+					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
+					(cx[i] - r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2)))
+					)
+				{
+					// 1. brick disappear
+					*(b + 5) = 0;
+					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+
+					// 2. ball flip
+					dx[i] = 0 - dx[i];
+				}
+
+			}
+		}
+	}
+}
+
 // handle movement of ball
 // For PlaySound() we need to include:
 #include "mmsystem.h"
@@ -343,6 +398,10 @@ void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 					cy[i] = H - 1 - r[i];
 					dy[i] *= -1;
 				}
+
+				// 2.2. check if ith ball hits the brick
+				// param i: number of ball
+				Check(i);
 			
 
 				// 2.3. auto play (send mouse events)
