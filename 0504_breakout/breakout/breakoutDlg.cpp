@@ -162,6 +162,15 @@ HCURSOR CbreakoutDlg::OnQueryDragIcon()
 #define W 630
 #define H 700
 #define N 3   // number of ball
+#define W1 10 // number of bricks on the horizontal plane
+#define H1 6  // number of bricks on the vertical plane
+
+/* parameters of bricks */
+// 0-1 coordinate (left, up)
+// 2-3 coordinate (right, down)
+// 4   RGB color of brick
+// 5   state of brick (0: not exist, 1: exist, 2: fall down, 3: stone...)
+int T_bricks[H1][W1][6];
 
 HDC hdc; // 繪圖用
 int px, py, pw, ph, pF; // 接球平台參數
@@ -227,6 +236,23 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 	
 	// 1.繪出遊戲框
 	Rect(hdc, 0, 0, W, H, 0xFF, 0);//藍色實心矩形
+
+	// 1.5. initialize parameters of bricks && draw bricks
+	for (int y = 0; y < H1; y++) {
+		for (int x = 0; x < W1; x++) {
+			int *brick = T_bricks[y][x];
+			*(brick + 0) = 5 + x*(W/W1);             // x-coordinate of top left
+			*(brick + 1) = 5 + 40*y;                   // y-coordinate of top left
+			*(brick + 2) = 5 + (x+1)*(W/W1) - 10; // x-coordinate of bottom right
+			*(brick + 3) = 5 + 40*(y+1) - 10;            // y-coordinate of bottom right
+			*(brick + 4) = rand()+ (rand()<<16);   // RGB color
+			*(brick + 5) = rand()%2;                      // state
+			
+			if (*(brick + 5) != 0) {
+				Rect(hdc, *(brick + 0), *(brick + 1), *(brick + 2), *(brick + 3), *(brick + 4), 1);
+			}			
+		}
+	}
 
 	// 2. 繪出接球平台(隨著滑鼠移動)
 	// px=平台左邊x座標, py=平台左邊y座標
