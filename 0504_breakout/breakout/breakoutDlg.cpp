@@ -174,7 +174,7 @@ HCURSOR CbreakoutDlg::OnQueryDragIcon()
 //  - 1: exist, hit 1->0
 //  - 2/3: fall down, 2->3->0 (color won't change)
 //  - 4/5: fall down, 4->5->0 (twinkle)
-//  - 6/7: stone, hit 6->7->0
+//  - 6/7: stone, need to hit twice, 6->7->0
 int T_bricks[H1][W1][6];
 
 HDC hdc; // 繪圖用
@@ -250,8 +250,14 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 			*(brick + 1) = 5 + 40*y;               // y-coordinate of top left
 			*(brick + 2) = 5 + (x+1)*(W/W1) - 10;  // x-coordinate of bottom right
 			*(brick + 3) = 5 + 40*(y+1) - 10;      // y-coordinate of bottom right
-			*(brick + 4) = rand()+ (rand()<<16);   // RGB color
-			*(brick + 5) = rand()%2;               // state
+			//*(brick + 4) = rand()+ (rand()<<16);   // RGB color
+			*(brick + 5) = rand()%7;               // state
+			if (*(brick + 5) == 3 || *(brick + 5) == 5) *(brick + 5) = 1;
+			// set color
+			if (*(brick + 5) == 1) *(brick + 4) = 0x0000FF;       // blue
+			else if (*(brick + 5) == 2) *(brick + 4) = 0x00FF00;  // green
+			else if (*(brick + 5) == 4) *(brick + 4) = 0xFF0000;  // red
+			else if (*(brick + 5) == 6) *(brick + 4) = 0x000000;  // black
 		}
 	}
 	for (int y = 0; y < H1; y++) {
@@ -323,6 +329,25 @@ void CbreakoutDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
+void change_bricks(int *b) {
+	// 6->7
+	if (*(b + 5) == 6) {
+		*(b + 5) = 7;
+		*(b + 4) = rand() + rand() << 16;
+		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
+	}
+	// 1->0, 7->0
+	else if ((*(b + 5) == 1) || (*(b + 5) == 7)) {
+		*(b + 5) = 0;
+		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+	}
+	//
+	else {
+		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
+	}
+	return;
+}
+
 // check if ith ball (cx[i], cy[i], r[i]) hits the brick
 void Check(int i) {
 	for (int y = 0; y < H1; y++) {
@@ -332,33 +357,34 @@ void Check(int i) {
 				if (
 					// hit bottom
 					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
-					(cx[i] + r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2))) ||
+					(cx[i] > *(b + 0)) && (cx[i] < *(b + 2))) ||
 					// hit top
 					((cy[i] + r[i] > *(b + 3)) && (cy[i] + r[i] < *(b + 1)) &&
-					(cx[i] + r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2)))
+					(cx[i] > *(b + 0)) && (cx[i] < *(b + 2)))
 					) 
 				{
-					// 1. brick disappear
-					*(b + 5) = 0;
-					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+					// 1. change bricks
+					change_bricks(b);
 
 					// 2. ball flip
 					dy[i] = 0 - dy[i];
 				}else if (
 					// hit left
-					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
+					((cy[i] < *(b + 3)) && (cy[i] > *(b + 1)) &&
 					(cx[i] + r[i] > *(b + 0)) && (cx[i] + r[i] < *(b + 2))) ||
 					// hit right
-					((cy[i] - r[i] < *(b + 3)) && (cy[i] - r[i] > *(b + 1)) &&
+					((cy[i] < *(b + 3)) && (cy[i] > *(b + 1)) &&
 					(cx[i] - r[i] > *(b + 0)) && (cx[i] - r[i] < *(b + 2)))
 					)
 				{
-					// 1. brick disappear
-					*(b + 5) = 0;
-					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+					// 1. change bricks
+					change_bricks(b);
 
 					// 2. ball flip
 					dx[i] = 0 - dx[i];
+				}
+				else {
+					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
 				}
 
 			}
