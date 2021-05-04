@@ -297,7 +297,8 @@ void CbreakoutDlg::OnBnClickedButton1()  //啟動遊戲
 		Ball(hdc, cx[i], cy[i], r[i], cc[i]);
 	}
 
-	SetTimer(123, 20, 0); // 每100ms呼叫Timer移動球	
+	SetTimer(123, 20, 0); // 每 30ms 呼叫Timer移動球	
+	SetTimer(124, 10, 0); // 每 10ms 呼叫Timer移動球	
 }
 
 
@@ -334,17 +335,22 @@ void change_bricks(int *b) {
 	if (*(b + 5) == 6) {
 		*(b + 5) = 7;
 		*(b + 4) = rand() + rand() << 16;
-		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
+	}
+	// 2->3
+	else if (*(b + 5) == 2) {
+		*(b + 5) = 3;
+	}
+	// 4->5
+	else if (*(b + 5) == 4) {
+		*(b + 5) = 5;
 	}
 	// 1->0, 7->0
 	else if ((*(b + 5) == 1) || (*(b + 5) == 7)) {
 		*(b + 5) = 0;
-		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+		*(b + 4) = 0xF0F0F0;
 	}
-	//
-	else {
-		Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
-	}
+
+	Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
 	return;
 }
 
@@ -398,6 +404,28 @@ void Check(int i) {
 #pragma comment (lib, "winmm.lib")
 void CbreakoutDlg::OnTimer(UINT_PTR nIDEvent)
 {
+	if (nIDEvent == 124) {
+		for (int y = 0; y < H1; y++) {
+			for (int x = 0; x < W1; x++) {
+				int *b = T_bricks[y][x];
+				if (*(b + 5) == 3) {
+					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+					*(b + 1) += 5;
+					*(b + 3) += 5;
+					if (*(b + 3) >= (H - 30)) *(b + 5) = 0;
+					else Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
+				}
+				else if (*(b + 5) == 5) {
+					Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), 0xF0F0F0, 1);
+					*(b + 1) += 5;
+					*(b + 3) += 5;
+					*(b + 4) = 0xFFFFFF - *(b + 4);
+					if (*(b + 3) >= (H - 30)) *(b + 5) = 0;
+					else Rect(hdc, *(b + 0), *(b + 1), *(b + 2), *(b + 3), *(b + 4), 1);
+				}
+			}
+		}
+	}
 	if (nIDEvent == 123) {
 		for (int i = 0; i < N; i++) {
 			if (cs[i]==1) {
