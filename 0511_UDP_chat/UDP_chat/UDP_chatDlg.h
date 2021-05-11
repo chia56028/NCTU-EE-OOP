@@ -37,4 +37,5 @@ public:
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	CString m_Edit1;
 	CString m_Edit2;
+	CEdit m_Edit11;
 };

@@ -72,6 +72,7 @@ void CUDPchatDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_Edit1);
 	DDX_Text(pDX, IDC_EDIT2, m_Edit2);
+	DDX_Control(pDX, IDC_EDIT1, m_Edit11);
 }
 
 BEGIN_MESSAGE_MAP(CUDPchatDlg, CDialogEx)
@@ -122,7 +123,7 @@ BOOL CUDPchatDlg::OnInitDialog()
 	Start_UDP_Client(&CSock, &CAddr, 6000, IP, CEVENT, m_hWnd);
 
 	UpdateData(1);
-	// = L"UDP Start up";
+	m_Edit1 = L"Successfully start UDP";
 	UpdateData(0);
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
@@ -178,15 +179,26 @@ HCURSOR CUDPchatDlg::OnQueryDragIcon()
 }
 
 
-
+// Client send the string in the windows to Server
 void CUDPchatDlg::OnBnClickedButton1()
 {
+	// 1. Declare variables
 	int i, Len = sizeof(sockaddr);
 	char S1[2000] = { "Hello World" };
 	wchar_t *S11;
+
+	// 2. Capture string
+	UpdateData(1);
 	S11 = (wchar_t *)m_Edit2.GetBuffer();
+	UpdateData(0);
+
+	// 3. Data transform
 	UniCodeToBig5(S11, S1, sizeof(S1)-2); // bug here
+
+	// 4. Client send datas to Server
 	sendto(CSock, S1, strlen(S1), 0, (sockaddr *)&CAddr, Len);
+
+	
 }
 
 
@@ -212,12 +224,20 @@ LRESULT CUDPchatDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	if (message == SEVENT) {
 		i = recvfrom(wParam, S1, sizeof(S1) - 1, 0, &Addr, &len);
 		if (i > 0) {
+			// end of string
 			S1[i] = 0;
+
+			// transform
 			Big5ToUniCode(S1, S11, strlen(S1)+1);
+
+			// display string
 			UpdateData(1);
 			m_Edit1 += S11;
 			m_Edit1 += L"\r\n";
 			UpdateData(0);
+
+			// auto scroll
+			m_Edit11.LineScroll(m_Edit11.GetLineCount());
 		}
 	}
 	return CDialogEx::WindowProc(message, wParam, lParam);
