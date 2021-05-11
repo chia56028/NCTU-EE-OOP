@@ -12,6 +12,15 @@
 #define new DEBUG_NEW
 #endif
 
+#define SEVENT (WM_USER+100) // Server Event
+#define CEVENT (WM_USER+200) // Client Event
+#include "tcpip_async.cpp"
+
+SOCKET      SSock, CSock;    // Internet Connection Code
+sockaddr_in CAddr;           // Save Remote Info (IP+Port)
+
+char IP[100] = { "192.168.13.255" }; //x.x.x.255 for broadcast
+
 
 // 對 App About 使用 CAboutDlg 對話方塊
 
@@ -52,6 +61,8 @@ END_MESSAGE_MAP()
 
 CUDPchatDlg::CUDPchatDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_UDP_CHAT_DIALOG, pParent)
+	, m_Edit1(_T(""))
+	, m_Edit2(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,6 +70,8 @@ CUDPchatDlg::CUDPchatDlg(CWnd* pParent /*=nullptr*/)
 void CUDPchatDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT1, m_Edit1);
+	DDX_Text(pDX, IDC_EDIT2, m_Edit2);
 }
 
 BEGIN_MESSAGE_MAP(CUDPchatDlg, CDialogEx)
@@ -102,6 +115,15 @@ BOOL CUDPchatDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 設定小圖示
 
 	// TODO: 在此加入額外的初始設定
+	// Set up UDP Client (Receive Message)
+	Start_UDP_Server(&SSock, 6000, SEVENT, m_hWnd);
+
+	// Set up UDP Server (Send Message)
+	Start_UDP_Client(&CSock, &CAddr, 6000, IP, CEVENT, m_hWnd);
+
+	UpdateData(1);
+	// = L"UDP Start up";
+	UpdateData(0);
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -156,10 +178,15 @@ HCURSOR CUDPchatDlg::OnQueryDragIcon()
 }
 
 
-#include "tcpip_async.cpp"
+
 void CUDPchatDlg::OnBnClickedButton1()
 {
-	// TODO: 在此加入控制項告知處理常式程式碼
+	int i, Len = sizeof(sockaddr);
+	char S1[2000] = { "Hello World" };
+	wchar_t *S11;
+	S11 = (wchar_t *)m_Edit2.GetBuffer();
+	UniCodeToBig5(S11, S1, sizeof(S1)-2); // bug here
+	sendto(CSock, S1, strlen(S1), 0, (sockaddr *)&CAddr, Len);
 }
 
 
@@ -171,4 +198,27 @@ void CUDPchatDlg::OnEnChangeEdit1()
 	// 讓具有 ENM_CHANGE 旗標 ORed 加入遮罩。
 
 	// TODO:  在此加入控制項告知處理常式程式碼
+}
+
+
+LRESULT CUDPchatDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int i, len=sizeof(sockaddr);
+	char S1[2000];    // One-Byte Character
+	wchar_t S11[200]; // Two-Bytes UninCode String
+	sockaddr Addr;
+
+	// UDP Server: Receive Message from Client 
+	if (message == SEVENT) {
+		i = recvfrom(wParam, S1, sizeof(S1) - 1, 0, &Addr, &len);
+		if (i > 0) {
+			S1[i] = 0;
+			Big5ToUniCode(S1, S11, strlen(S1)+1);
+			UpdateData(1);
+			m_Edit1 += S11;
+			m_Edit1 += L"\r\n";
+			UpdateData(0);
+		}
+	}
+	return CDialogEx::WindowProc(message, wParam, lParam);
 }

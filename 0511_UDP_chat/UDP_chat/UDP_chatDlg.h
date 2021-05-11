@@ -34,4 +34,7 @@ protected:
 public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnEnChangeEdit1();
+	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
+	CString m_Edit1;
+	CString m_Edit2;
 };
