@@ -216,19 +216,27 @@ void CUDPchatDlg::OnEnChangeEdit1()
 LRESULT CUDPchatDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int i, len=sizeof(sockaddr);
-	char S1[2000];    // One-Byte Character
-	wchar_t S11[200]; // Two-Bytes UninCode String
+	char S1[2000], S2[2000]; // One-Byte Character
+	wchar_t S11[200];        // Two-Bytes UninCode String
 	sockaddr Addr;
+	sockaddr_in Addr1;
 
 	// UDP Server: Receive Message from Client 
 	if (message == SEVENT) {
-		i = recvfrom(wParam, S1, sizeof(S1) - 1, 0, &Addr, &len);
+		i = recvfrom(wParam, S1, sizeof(S1) - 1, 0, (sockaddr *)&Addr1, &len);
 		if (i > 0) {
 			// end of string
 			S1[i] = 0;
 
+			sprintf_s(S2, sizeof(S2) - 1, "(%d,%d,%d,%d) say: %s\r\n",
+				(Addr1.sin_addr.s_addr >> 0) & 0xFF,
+				(Addr1.sin_addr.s_addr >> 8) & 0xFF,
+				(Addr1.sin_addr.s_addr >> 16) & 0xFF,
+				(Addr1.sin_addr.s_addr >> 24) & 0xFF,
+				S1, sizeof(S1)-1);
+
 			// transform
-			Big5ToUniCode(S1, S11, strlen(S1)+1);
+			Big5ToUniCode(S2, S11, strlen(S2)+1);
 
 			// display string
 			UpdateData(1);
