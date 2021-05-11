@@ -3,6 +3,7 @@
 // 這也會影響 IntelliSense 效能，包括程式碼完成以及許多程式碼瀏覽功能。
 // 但此處所列的檔案，如果其中任一在組建之間進行了更新，即會重新編譯所有檔案。
 // 請勿於此處新增會經常更新的檔案，如此將會對於效能優勢產生負面的影響。
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #ifndef PCH_H
 #define PCH_H

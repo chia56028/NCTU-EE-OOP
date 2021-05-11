@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CUDPchatDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CUDPchatDlg::OnBnClickedButton1)
+	ON_EN_CHANGE(IDC_EDIT1, &CUDPchatDlg::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +155,20 @@ HCURSOR CUDPchatDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+#include "tcpip_async.cpp"
+void CUDPchatDlg::OnBnClickedButton1()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+}
+
+
+void CUDPchatDlg::OnEnChangeEdit1()
+{
+	// TODO:  如果這是 RICHEDIT 控制項，控制項將不會
+	// 傳送此告知，除非您覆寫 CDialogEx::OnInitDialog()
+	// 函式和呼叫 CRichEditCtrl().SetEventMask()
+	// 讓具有 ENM_CHANGE 旗標 ORed 加入遮罩。
+
+	// TODO:  在此加入控制項告知處理常式程式碼
+}
